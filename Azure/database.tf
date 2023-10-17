@@ -21,4 +21,10 @@ resource "azurerm_mssql_server" "hack" {
 }
 
 // SQL database
-// TODO Create msssql database with name "mydb" in the server created above
+resource "azurerm_mssql_database" "hack" {
+  name           = "mydb"
+  server_id      = azurerm_mssql_server.hack.id
+  max_size_gb    = 1
+  sku_name       = "Basic"
+  zone_redundant = false
+}
