@@ -24,19 +24,23 @@ module "aks" {
   http_application_routing_enabled     = false
   azure_policy_enabled                 = true
   enable_host_encryption               = false
-
-  // TODO: Enable autoscaling with nodecount 1..2
+  /* Challenge 03 - START - Enable Auto Scaling */
+  enable_auto_scaling                  = true
+  # Please set `agents_count` `null` while `enable_auto_scaling` is `true` to avoid possible `agents_count` changes. Must be set to a number if `enable_auto_scaling` is `false`.
+  agents_count                         = null
+  agents_min_count                     = 1
+  agents_max_count                     = 2
+  /* Challenge 03 - END - Enable Auto Scaling */
   agents_max_pods                      = 100
   agents_pool_name                     = "exnodepool"
   agents_availability_zones            = []
   agents_type                          = "VirtualMachineScaleSets"
   agents_size                          = "standard_d2ds_v4"
-
-  // TODO: Activate log analytics workspace
-  log_analytics_workspace_enabled      = false
+  /* Challenge 03 - START - Enable Log Analytics features (workspace and solution) */
+  log_analytics_workspace_enabled      = true
   cluster_log_analytics_workspace_name = "${local.common-name}-aks"
-
-  attached_acr_id_map = {
+  /* Challenge 03 - END - Enable Log Analytics features (workspace and solution) */
+  attached_acr_id_map                  = {
     "hack_acr" : azurerm_container_registry.hack.id
   }
 
@@ -59,7 +63,10 @@ module "aks" {
   net_profile_dns_service_ip = "10.0.0.10"
   net_profile_service_cidr   = "10.0.0.0/16"
 
-  // TODO: Enable prometheus add-on profile
+  /* Challenge 03 - START - Enable Prometheus add-on profile */
+  monitor_metrics = {
+  }
+  /* Challenge 03 - END - Enable Prometheus add-on profile */
 
   depends_on = [module.network]
 }
