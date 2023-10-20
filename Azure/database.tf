@@ -28,3 +28,7 @@ resource "azurerm_mssql_database" "hack" {
   sku_name       = "Basic"
   zone_redundant = false
 }
+
+// TODO: Add a firewall rule to open the database to the azure internal network. Verify in azure portal that the checkmark "Allow Azure services and resources to access this server" is checked.
+// Tip: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/mssql_firewall_rule
+// Tip: https://learn.microsoft.com/de-de/azure/azure-sql/database/firewall-configure?view=azuresql
