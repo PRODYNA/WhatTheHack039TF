@@ -24,16 +24,15 @@ module "aks" {
   http_application_routing_enabled     = false
   azure_policy_enabled                 = true
   enable_host_encryption               = false
-  enable_auto_scaling                  = false
-  # Please set `agents_count` `null` while `enable_auto_scaling` is `true` to avoid possible `agents_count` changes. Must be set to a number if `enable_auto_scaling` is `false`.
-  agents_count                         = 1
-  agents_min_count                     = 1
-  agents_max_count                     = 1
+
+  // TODO: Enable autoscaling with nodecount 1..2
   agents_max_pods                      = 100
   agents_pool_name                     = "exnodepool"
   agents_availability_zones            = []
   agents_type                          = "VirtualMachineScaleSets"
   agents_size                          = "standard_d2ds_v4"
+
+  // TODO: Activate log analytics workspace
   log_analytics_workspace_enabled      = false
   cluster_log_analytics_workspace_name = "${local.common-name}-aks"
 
@@ -59,6 +58,8 @@ module "aks" {
   network_policy             = "azure"
   net_profile_dns_service_ip = "10.0.0.10"
   net_profile_service_cidr   = "10.0.0.0/16"
+
+  // TODO: Enable prometheus add-on profile
 
   depends_on = [module.network]
 }

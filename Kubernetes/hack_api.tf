@@ -41,6 +41,7 @@ resource "kubernetes_deployment" "hack_api" {
   }
 
   spec {
+    // TODO: Avoid number of replicas is reset on every terraform apply after the deployment was automatically scaled
     replicas = 1
 
     selector {
@@ -84,6 +85,11 @@ resource "kubernetes_deployment" "hack_api" {
             }
           }
 
+          // TODO: Define resources for CPU and Memory with the following parameters
+          // - CPU limits: 0.25
+          // - Memory limits: 256Mi
+          // - CPU requests: 0.1
+          // - Memory requests: 128Mi
         }
 
         restart_policy = "Always"
@@ -148,3 +154,10 @@ resource "kubernetes_ingress_v1" "api" {
     helm_release.ingress-nginx
   ]
 }
+
+// TODO: Create an Horizontal Pod Autoscaler for the API with the following criateria
+// - Scale up when CPU utilization is above 50%
+// - Scale down when CPU utilization is below 50%
+// - Minimum number of replicas: 1
+// - Maximum number of replicas: 10
+
