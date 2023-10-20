@@ -2,4 +2,9 @@ locals {
   public_hostname = "hack.${local.ingress_ip}.traefik.me"
 }
 
-// TODO: Create namespace "hack"
+// Create namespace hack
+resource "kubernetes_namespace" "hack" {
+  metadata {
+    name = "hack"
+  }
+}
