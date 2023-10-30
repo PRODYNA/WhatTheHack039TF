@@ -3,7 +3,6 @@ locals {
   premium_zrs_storage_class_name = "managed-premium-zrs"
 }
 
-// TODO: Take notice of new storage class that makes of zone redundant storage devices
 // Create a managed-premium-zrs storage class that can be used for RWO volumes with the feature that the data is replicated across three zones in the region.
 resource "kubectl_manifest" "premium-zrs" {
   yaml_body = <<EOF

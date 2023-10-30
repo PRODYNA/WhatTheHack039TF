@@ -112,7 +112,6 @@ resource "kubernetes_deployment" "hack_api" {
             read_only  = true
           }
 
-          // TODO: Take notice of new volume mounts
           // Mount the PVC as /data
           volume_mount {
             mount_path = "/data"
@@ -156,7 +155,6 @@ resource "kubernetes_deployment" "hack_api" {
           }
         }
 
-        // TODO: Take notice of new volumes
         // Mount the persistent volume claim
         volume {
           name = "api-data"
@@ -248,9 +246,38 @@ resource "kubernetes_ingress_v1" "api" {
   ]
 }
 
-// TODO: Create a persistent volume claim to match volume mount "api-data". The PVC should be of access type "ReadWriteOnce", provide 10Gi storage and make use of the newly introduced storage class "managed-premium-zrs".
+// Create a persistent volume claim for the api
+resource "kubernetes_persistent_volume_claim" "hack_api" {
+  metadata {
+    name      = "api-data"
+    namespace = kubernetes_namespace.hack.metadata.0.name
+  }
+  spec {
+    storage_class_name = local.premium_zrs_storage_class_name
+    access_modes       = ["ReadWriteOnce"]
+    resources {
+      requests = {
+        storage = "10Gi"
+      }
+    }
+  }
+}
 
-// TODO: Create a persistent volume claim to match volume mount "api-data-shared". The PVC should be of access type "ReadWriteMany", provide 10Gi storage and make use of storage class "azurefile-csi-premium".
+resource "kubernetes_persistent_volume_claim" "hack_api_shared" {
+  metadata {
+    name      = "api-data-shared"
+    namespace = kubernetes_namespace.hack.metadata.0.name
+  }
+  spec {
+    storage_class_name = "azurefile-csi-premium"
+    access_modes       = ["ReadWriteMany"]
+    resources {
+      requests = {
+        storage = "10Gi"
+      }
+    }
+  }
+}
 
 // Challenge 03 - START - Add horizontal pod autoscaler for the API
 // Horizontal pod autoscaler (HPA) for the API

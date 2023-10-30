@@ -4,4 +4,23 @@ resource "kubernetes_namespace" "persistence" {
   }
 }
 
-// TODO: Deploy helm chart "https://marketplace.azurecr.io/helm/v1/repo" with name "hack-mysql" in namespace "persistence" with values from file "helm/mysql.yaml" and set global.storageClass to local.premium_zrs_storage_class_name
+resource "helm_release" "mysql" {
+  name = "hack-mysql"
+  repository = "https://marketplace.azurecr.io/helm/v1/repo"
+  namespace = kubernetes_namespace.persistence.metadata.0.name
+  chart = "mysql"
+
+  values = [
+    file("helm/mysql.yaml")
+  ]
+
+  set {
+    name = "global.storageClass"
+    value = local.premium_zrs_storage_class_name
+  }
+
+  // We need to wait for the storageclass because we use it
+  depends_on = [
+    kubectl_manifest.premium-zrs
+  ]
+}
