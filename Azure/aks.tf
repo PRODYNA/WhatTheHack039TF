@@ -52,7 +52,21 @@ module "aks" {
     "Agent" : "defaultnodepoolagent"
   }
 
-  // TODO: Add second node pool "alpha" with autoscaling from 1-3 nodes. Use same VM size as default node pool. Add label "nodepool" with value "alpha" to the nodes. The pool should be in the additional Vnet subnet created in this challenge
+  /* Challenge 05 - START - Add second node pool */
+  node_pools = {
+    alpha = {
+      name                = "alpha"
+      vm_size             = "standard_d2ds_v4"
+      enable_auto_scaling = true
+      min_count           = 1
+      max_count           = 3
+      vnet_subnet_id      = module.network.vnet_subnets[2]
+      node_labels         = {
+        "nodepool" = "alpha"
+      }
+    }
+  }
+  /* Challenge 05 - END - Enable Azure Policy add-on profile */
 
   ingress_application_gateway_enabled          = false
   ingress_application_gateway_name             = "${local.common-name}-agw"

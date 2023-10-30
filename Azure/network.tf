@@ -4,9 +4,10 @@ module "network" {
   resource_group_name = azurerm_resource_group.hack.name
   vnet_name           = local.common-name
   address_space       = "10.52.0.0/16"
-  // TODO: Add a third subnet "aks-alpha" with prefix "10.52.2.0/24"
-  subnet_prefixes     = ["10.52.0.0/24", "10.52.1.0/24"]
-  subnet_names        = ["aks", "aks-agw"]
+  # Challenge 05 - START - Add Vnet aks-alpha for second node pool
+  subnet_prefixes     = ["10.52.0.0/24", "10.52.1.0/24", "10.52.2.0/24"]
+  subnet_names        = ["aks", "aks-agw", "aks-alpha"]
+  # Challenge 05 - END - Add Vnet aks-alpha for second node pool
   depends_on          = [azurerm_resource_group.hack]
   use_for_each = false
 }
