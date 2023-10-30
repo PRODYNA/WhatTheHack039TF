@@ -3,13 +3,12 @@ resource "kubernetes_namespace" "ingress-nginx" {
   metadata {
     name = "ingress-nginx"
 
-    // TODO: Uncomment the following lines after service mesh was activated in AKS (via Azure TF project) and configured following the steps in the ../Challenge_Resources/Challenge_07/README.md
-    #    annotations = {
-    #      "openservicemesh.io/sidecar-injection" : "disabled"
-    #    }
-    #    labels = {
-    #      "openservicemesh.io/monitored-by" : "osm"
-    #    }
+    annotations = {
+      "openservicemesh.io/sidecar-injection" : "disabled"
+    }
+    labels = {
+      "openservicemesh.io/monitored-by" : "osm"
+    }
   }
 }
 
