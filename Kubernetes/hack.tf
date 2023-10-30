@@ -6,6 +6,14 @@ locals {
 resource "kubernetes_namespace" "hack" {
   metadata {
     name = "hack"
+
+    // TODO: Uncomment the following lines after service mesh was activated in AKS (via Azure TF project) and configured following the steps in the ../Challenge_Resources/Challenge_07/README.md
+    #    annotations = {
+    #      "openservicemesh.io/sidecar-injection" : "enabled"
+    #    }
+    #    labels = {
+    #      "openservicemesh.io/monitored-by" : "osm"
+    #    }
   }
 }
 
