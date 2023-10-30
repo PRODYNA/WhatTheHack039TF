@@ -60,8 +60,7 @@ module "aks" {
   }
 
   key_vault_secrets_provider_enabled = true
-
-  // TODO: Enable oidc issuer
+  oidc_issuer_enabled                = true
 
   network_policy             = "azure"
   net_profile_dns_service_ip = "10.0.0.10"
@@ -93,18 +92,28 @@ resource "null_resource" "get-credentials" {
   ]
 }
 
-// TODO: Create a user assigned identity with
-// name = "${local.common-name}-mi"
-// resource_group_name = azurerm_resource_group.hack.name
-// location = azurerm_resource_group.hack.location
+// Create a managed identity
+resource "azurerm_user_assigned_identity" "hack" {
+  resource_group_name = azurerm_resource_group.hack.name
+  location            = azurerm_resource_group.hack.location
+  name                = "${local.common-name}-mi"
+}
 
-// TODO: Assign the role "Key Vault Secrets User" to the managed identity
+// Assign role Key Vault Secrets User to the managed identity
+resource "azurerm_role_assignment" "aks-keyvault" {
+  scope                = azurerm_key_vault.hack.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_user_assigned_identity.hack.principal_id
+}
 
-// TODO: Create a federated identity credential with
-// name = "${local.common-name}-credential"
-// resource_group_name = azurerm_resource_group.hack.name
-// audience = ["api://AzureADTokenExchange"]
-// issuer - The issuer of our AKS
-// parent_id = the id of the managed identity
-// subject = "system:serviceaccount:<namespace>:<service-account-name>".
 // Create a credential for the managed identity
+resource "azurerm_federated_identity_credential" "hack-credential" {
+  name                = "${local.common-name}-credential"
+  resource_group_name = azurerm_resource_group.hack.name
+  audience            = ["api://AzureADTokenExchange"]
+  // should be this value, documented here https://learn.microsoft.com/en-us/graph/api/application-post-federatedidentitycredentials?view=graph-rest-1.0&tabs=http
+  issuer              = module.aks.oidc_issuer_url
+  parent_id           = azurerm_user_assigned_identity.hack.id
+  subject             = "system:serviceaccount:hack:aks-keyvault"
+  // must match the namespace and the name of the service account
+}

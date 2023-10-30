@@ -10,7 +10,6 @@ resource "kubernetes_namespace" "hack" {
 }
 
 // Create service account for accessing the keyvault
-// TODO: Understand that we are adding a new service principal, see HINT below
 resource "kubernetes_manifest" "aks-keyvault" {
   manifest = {
     apiVersion = "v1"
@@ -28,7 +27,6 @@ resource "kubernetes_manifest" "aks-keyvault" {
 
 // Create role binding for the service account
 // Note: We need to use the kubectl_manifest resource due to the complex | syntax which kubernetes_manifest does not handle
-// TODO: Be aware that we are a secretProviderClass, see the HINTs below
 resource "kubectl_manifest" "secretproviderclass" {
   yaml_body = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1
