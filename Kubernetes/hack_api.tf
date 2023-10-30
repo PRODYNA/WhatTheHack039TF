@@ -15,6 +15,7 @@ resource "kubernetes_config_map" "hack_api" {
   }
 }
 
+// TODO: Remove this block, we don't need this anymore
 // Create a secret for the API with sensitive information
 resource "kubernetes_secret" "hack_api" {
   metadata {
@@ -63,6 +64,7 @@ resource "kubernetes_deployment" "hack_api" {
       }
 
       spec {
+        // TODO: Use our new service account
         service_account_name = "default"
 
         container {
@@ -79,12 +81,20 @@ resource "kubernetes_deployment" "hack_api" {
             }
           }
 
+          // TODO: Remove this block
           // use environment from the secret
           env_from {
             secret_ref {
               name = kubernetes_secret.hack_api.metadata.0.name
             }
           }
+
+          // TODO: Mount the volume secrets-inline to /secrets
+
+          // Override the command to use the secret
+          command = [
+            "sh", "-c", "SQL_SERVER_PASSWORD=$(cat /secrets/SQL_SERVER_PASSWORD) python3 sql_api.py"
+          ]
 
           // Challenge 03 - START - Define resource limits for the API
           resources {
@@ -100,12 +110,21 @@ resource "kubernetes_deployment" "hack_api" {
           // Challenge 03 - END - Define resource limits for the API
         }
 
+        // TODO: Define the volume that connects to the keyVault, with parameters
+        // name = "secrets-inline"
+        // type csi
+        // driver = "secrets-store.csi.k8s.io"
+        // secretProviderClass is the name of the secret provider class
+
         restart_policy = "Always"
       }
     }
   }
 
   wait_for_rollout = true
+  depends_on       = [
+    kubectl_manifest.secretproviderclass
+  ]
 }
 
 // Service for the API

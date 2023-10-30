@@ -59,6 +59,10 @@ module "aks" {
     aks-agw-snet = module.network.vnet_subnets[1]
   }
 
+  key_vault_secrets_provider_enabled = true
+
+  // TODO: Enable oidc issuer
+
   network_policy             = "azure"
   net_profile_dns_service_ip = "10.0.0.10"
   net_profile_service_cidr   = "10.0.0.0/16"
@@ -88,3 +92,19 @@ resource "null_resource" "get-credentials" {
     time_sleep.wait_2_minutes
   ]
 }
+
+// TODO: Create a user assigned identity with
+// name = "${local.common-name}-mi"
+// resource_group_name = azurerm_resource_group.hack.name
+// location = azurerm_resource_group.hack.location
+
+// TODO: Assign the role "Key Vault Secrets User" to the managed identity
+
+// TODO: Create a federated identity credential with
+// name = "${local.common-name}-credential"
+// resource_group_name = azurerm_resource_group.hack.name
+// audience = ["api://AzureADTokenExchange"]
+// issuer - The issuer of our AKS
+// parent_id = the id of the managed identity
+// subject = "system:serviceaccount:<namespace>:<service-account-name>".
+// Create a credential for the managed identity
