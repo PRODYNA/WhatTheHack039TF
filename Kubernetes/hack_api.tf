@@ -112,6 +112,19 @@ resource "kubernetes_deployment" "hack_api" {
             read_only  = true
           }
 
+          // TODO: Take notice of new volume mounts
+          // Mount the PVC as /data
+          volume_mount {
+            mount_path = "/data"
+            name       = "api-data"
+          }
+
+          // Mount the PVC as /data
+          volume_mount {
+            mount_path = "/shared"
+            name       = "api-data-shared"
+          }
+
           // Override the command to use the secret
           command = [
             "sh", "-c", "SQL_SERVER_PASSWORD=$(cat /secrets/SQL_SERVER_PASSWORD) python3 sql_api.py"
@@ -140,6 +153,22 @@ resource "kubernetes_deployment" "hack_api" {
             volume_attributes = {
               secretProviderClass = data.terraform_remote_state.azure.outputs.hack_common_name
             }
+          }
+        }
+
+        // TODO: Take notice of new volumes
+        // Mount the persistent volume claim
+        volume {
+          name = "api-data"
+          persistent_volume_claim {
+            claim_name = "api-data"
+          }
+        }
+
+        volume {
+          name = "api-data-shared"
+          persistent_volume_claim {
+            claim_name = "api-data-shared"
           }
         }
 
@@ -218,6 +247,10 @@ resource "kubernetes_ingress_v1" "api" {
     helm_release.ingress-nginx
   ]
 }
+
+// TODO: Create a persistent volume claim to match volume mount "api-data". The PVC should be of access type "ReadWriteOnce", provide 10Gi storage and make use of the newly introduced storage class "managed-premium-zrs".
+
+// TODO: Create a persistent volume claim to match volume mount "api-data-shared". The PVC should be of access type "ReadWriteMany", provide 10Gi storage and make use of storage class "azurefile-csi-premium".
 
 // Challenge 03 - START - Add horizontal pod autoscaler for the API
 // Horizontal pod autoscaler (HPA) for the API
