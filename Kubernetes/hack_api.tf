@@ -67,6 +67,22 @@ resource "kubernetes_deployment" "hack_api" {
       spec {
         service_account_name = "aks-keyvault"
 
+        // TODO: Enable this block to schedule api replicas on nodepool alpha
+        #affinity {
+        #  node_affinity {
+        #    preferred_during_scheduling_ignored_during_execution {
+        #      weight = 1
+        #      preference {
+        #        match_expressions {
+        #          key      = "nodepool"
+        #          operator = "In"
+        #          values   = ["alpha"]
+        #        }
+        #      }
+        #    }
+        #  }
+        #}
+
         container {
           image = "${data.terraform_remote_state.azure.outputs.hack_common_name}.azurecr.io/hack/sqlapi:1.0"
           name  = "api"
@@ -168,6 +184,10 @@ resource "kubernetes_ingress_v1" "api" {
   metadata {
     name        = "api"
     namespace   = kubernetes_namespace.hack.metadata.0.name
+    annotations = {
+      // TODO: Enable this annotation
+      #"cert-manager.io/cluster-issuer" = local.clusterissuer_name
+    }
   }
   spec {
     rule {
@@ -186,7 +206,16 @@ resource "kubernetes_ingress_v1" "api" {
         }
       }
     }
-    ingress_class_name = "nginx"
+
+    // TODO: Enable this block which activates TLS and references to a (not existing) secret
+    #tls {
+    #  // This secret does not need to exist, it will be created by cert-manager
+    #  secret_name = "api-tls"
+    #  hosts       = [
+    #    local.public_hostname
+    #  ]
+    #}
+    #ingress_class_name = "nginx"
   }
 
   depends_on = [

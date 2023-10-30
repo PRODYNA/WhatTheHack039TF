@@ -4,6 +4,7 @@ module "network" {
   resource_group_name = azurerm_resource_group.hack.name
   vnet_name           = local.common-name
   address_space       = "10.52.0.0/16"
+  // TODO: Add a third subnet "aks-alpha" with prefix "10.52.2.0/24"
   subnet_prefixes     = ["10.52.0.0/24", "10.52.1.0/24"]
   subnet_names        = ["aks", "aks-agw"]
   depends_on          = [azurerm_resource_group.hack]
